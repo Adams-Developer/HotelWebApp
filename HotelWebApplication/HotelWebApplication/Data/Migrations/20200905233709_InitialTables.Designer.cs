@@ -10,14 +10,14 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HotelWebApplication.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200905182945_InitialTables")]
+    [Migration("20200905233709_InitialTables")]
     partial class InitialTables
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.6")
+                .HasAnnotation("ProductVersion", "3.1.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -303,8 +303,8 @@ namespace HotelWebApplication.Data.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(10,2)");
 
-                    b.Property<string>("RoomTypeId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("RoomTypeId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -330,8 +330,10 @@ namespace HotelWebApplication.Data.Migrations
 
             modelBuilder.Entity("HotelWebApplication.Models.RoomType", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<decimal>("BasePrice")
                         .HasColumnType("decimal(10,2)");
@@ -527,7 +529,8 @@ namespace HotelWebApplication.Data.Migrations
                     b.HasOne("HotelWebApplication.Models.RoomType", "RoomType")
                         .WithMany("Rooms")
                         .HasForeignKey("RoomTypeId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("HotelWebApplication.Models.RoomFeature", b =>

@@ -15,7 +15,7 @@ namespace HotelWebApplication.Models
         [Required]
         public int Number { get; set; }
 
-        public string RoomTypeId { get; set; }
+        public int RoomTypeId { get; set; }
 
         [ForeignKey("RoomTypeId")]
         public virtual RoomType RoomType { get; set; }

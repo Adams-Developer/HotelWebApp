@@ -12,6 +12,7 @@ using HotelWebApplication.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using HotelWebApplication.Services;
 
 namespace HotelWebApplication
 {
@@ -36,6 +37,11 @@ namespace HotelWebApplication
 
             services.AddControllersWithViews();
             services.AddRazorPages();
+
+            // Register Services
+            services.AddScoped(typeof(IGenericHotelService<>), typeof(GenericHotelService<>));
+
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
