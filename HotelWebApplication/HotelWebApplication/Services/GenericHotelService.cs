@@ -1,4 +1,6 @@
 ﻿using HotelWebApplication.Data;
+using HotelWebApplication.Models;
+using HotelWebApplication.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -63,5 +65,40 @@ namespace HotelWebApplication.Services
         {
             return await DbSet.Where(expression).ToArrayAsync();
         }
+
+        // Controller specific methods
+
+        /// <summary>
+        /// In the Room Index view - return a list of all rooms
+        /// present in the hotel, as well as a list of all the room types
+        /// so we can sort rooms based on the room type category
+        /// </summary>
+        /// <returns></returns>
+        public RoomsAdminIndexViewModel GetAllRoomsAndRoomTypes()
+        {
+            var rooms = _dbContext.Rooms.ToList();
+            var roomTypes = _dbContext.RoomTypes.ToList();
+
+            var RoomsAdminIndexViewModel = new RoomsAdminIndexViewModel
+            {
+                Rooms = rooms,
+                RoomTypes = roomTypes
+            };
+
+            return RoomsAdminIndexViewModel;
+        }
+
+        // return an array of room types
+        public async Task<IEnumerable<RoomType>> GetAllRoomTypesAsync()
+        {
+            return await _dbContext.RoomTypes.ToArrayAsync();
+        }
+
+        // return all rooms with a room type
+        public IEnumerable<Room> GetAllRooms()
+        {
+            return _dbContext.Rooms.Include(x => x.RoomType);
+        }
+
     }
 }

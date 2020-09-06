@@ -1,0 +1,43 @@
+﻿@model RoomsAdminIndexViewModel
+
+@{
+    ViewData["Title"] = "Rooms";
+}
+
+<h2>Room Availabilty</h2>
+<p>
+    <a asp-action="Create">Add Room</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Room Number</th>
+            <th>Room Price</th>
+            <th>Room Availability</th>
+            <th>Room Description</th>
+            <th>Maximum Guests</th>
+            <th>Room Category</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var item in Model.Rooms)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.Number)</td>
+                <td>@Html.DisplayFor(modelItem => item.Price)</td>
+                <td>@Html.DisplayFor(modelItem => item.Available)</td>
+                <td>@Html.DisplayFor(modelItem => item.Description)</td>
+                <td>@Html.DisplayFor(modelItem => item.MaximumGuests)</td>
+                <td>@Html.DisplayFor(modelItem => item.RoomType.Name)</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+
+            </tr>
+        }
+    </tbody>
+</table>

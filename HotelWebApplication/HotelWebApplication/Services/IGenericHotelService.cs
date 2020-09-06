@@ -1,4 +1,6 @@
-﻿using System;
+﻿using HotelWebApplication.Models;
+using HotelWebApplication.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -19,5 +21,17 @@ namespace HotelWebApplication.Services
         Task EditItemAsync(TEntity entity);
 
         Task DeleteItemAsync(TEntity entity);
+
+        #region Specific Controller Methods
+        // RoomsController
+        RoomsAdminIndexViewModel GetAllRoomsAndRoomTypes();
+
+        // RoomsController - Get RoomType entities
+        Task<IEnumerable<RoomType>> GetAllRoomTypesAsync();
+
+        // RoomsController - Get all rooms
+        IEnumerable<Room> GetAllRooms();
+
+        #endregion
     }
 }
