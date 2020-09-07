@@ -68,6 +68,9 @@ namespace HotelWebApplication.Services
 
         // Controller specific methods
 
+
+        // RoomsController Section
+
         /// <summary>
         /// In the Room Index view - return a list of all rooms
         /// present in the hotel, as well as a list of all the room types
@@ -99,6 +102,76 @@ namespace HotelWebApplication.Services
         {
             return _dbContext.Rooms.Include(x => x.RoomType);
         }
+
+        // FeaturesController Section
+
+        public IEnumerable<Room> GetAllRoomsWithFeature(int? featureId)
+        {
+            var roomFeatures = _dbContext.RoomFeature
+                .Include(x => x.Room)
+                .Include(x => x.Room.RoomType)
+                .Where(x => x.FeatureId == featureId);
+
+            var selectedRooms = new List<Room>();
+
+            foreach (var roomFeature in roomFeatures)
+            {
+                selectedRooms.Add(roomFeature.Room);
+            }
+            return selectedRooms;
+        }
+
+
+        // Take in a Room entity and return a list of SelectedRoomFeatureViewModel 
+        // This is a boolean property specifying if that particular feature
+        // is related to the room entity in question
+        public List<SelectedRoomFeatureViewModel> PopulateSelectedFeaturesForRoom(Room room)
+        {
+            var viewModel = new List<SelectedRoomFeatureViewModel>();
+
+            var allFeatures = _dbContext.Features;
+
+            // If the room is a new room entity whose Id isnt set yet
+            // set the Selected property to false
+            if (room.Id == 0)
+            {
+                foreach (var feature in allFeatures)
+                {
+                    viewModel.Add(new SelectedRoomFeatureViewModel
+                    {
+                        FeatureId = feature.Id,
+                        Feature = feature,
+                        Selected = false
+                    });
+                    
+                }
+            }
+            // if the condition fails, create a new HashSet of the rows,
+            // selecting the FeatureId
+            else 
+            {
+                var roomFeatures = _dbContext.RoomFeature.Where(x => x.RoomId == room.Id);
+                var roomFeatureIds = new HashSet<int>(roomFeatures.Select(x => x.FeatureId));
+
+                //Loop through all the features, 
+                //create a viewModel for each instance of feature
+                //checking if the featureId is present in the HashSet of roomFeatureIds
+                //If present, set Selected property to true, else false
+                foreach (var feature in allFeatures)
+                {
+                    viewModel.Add(new SelectedRoomFeatureViewModel
+                    {
+                        FeatureId = feature.Id,
+                        Feature = feature,
+                        Selected = roomFeatureIds.Contains(feature.Id)
+                    });
+                }
+            }
+
+            return viewModel;
+        }
+
+
 
     }
 }

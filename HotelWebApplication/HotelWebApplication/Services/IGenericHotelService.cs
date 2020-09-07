@@ -32,6 +32,13 @@ namespace HotelWebApplication.Services
         // RoomsController - Get all rooms
         IEnumerable<Room> GetAllRooms();
 
+        // FeaturesController
+        IEnumerable<Room> GetAllRoomsWithFeature(int? featureId);
+
+        // RoomFeaturesController
+        // List of features to populate checkboxes
+        List<SelectedRoomFeatureViewModel> PopulateSelectedFeaturesForRoom(Room room);
+
         #endregion
     }
 }

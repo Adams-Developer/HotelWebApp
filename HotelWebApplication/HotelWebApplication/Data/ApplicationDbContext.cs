@@ -18,11 +18,11 @@ namespace HotelWebApplication.Data
         public DbSet<Booking> Bookings { get; set; }
         public DbSet<Feature> Features { get; set; }
         public DbSet<Image> Images { get; set; }
-        public DbSet<ItemImage> ItemImageRelationships { get; set; }
+        public DbSet<ItemImage> ItemImages { get; set; }
         public DbSet<Review> Reviews { get; set; }
         public DbSet<Room> Rooms { get; set; }
         public DbSet<RoomType> RoomTypes { get; set; }
-        public DbSet<RoomFeature> RoomFeatureRelationships { get; set; }
+        public DbSet<RoomFeature> RoomFeature { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

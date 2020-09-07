@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace HotelWebApplication.Models
 {
+    // Many to Many relationship between Room and Feature entities
     public class RoomFeature
     {
         public int RoomId { get; set; }
