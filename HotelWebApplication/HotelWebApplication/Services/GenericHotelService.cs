@@ -32,14 +32,14 @@ namespace HotelWebApplication.Services
         // Delete Item
         public async Task DeleteItemAsync(TEnitity entity)
         {
-            DbSet.Update(entity);
+            DbSet.Remove(entity);
             await _dbContext.SaveChangesAsync();
         }
 
         // Edit Item
         public async Task EditItemAsync(TEnitity entity)
         {
-            DbSet.Remove(entity);
+            DbSet.Update(entity);
             await _dbContext.SaveChangesAsync();
         }
 
@@ -68,7 +68,6 @@ namespace HotelWebApplication.Services
 
         // Controller specific methods
 
-
         // RoomsController Section
 
         /// <summary>
@@ -91,20 +90,31 @@ namespace HotelWebApplication.Services
             return RoomsAdminIndexViewModel;
         }
 
-        // return an array of room types
+        /// <summary>
+        /// return an array of room types
+        /// </summary>
+        /// <returns></returns>
         public async Task<IEnumerable<RoomType>> GetAllRoomTypesAsync()
         {
             return await _dbContext.RoomTypes.ToArrayAsync();
         }
 
-        // return all rooms with a room type
+        /// <summary>
+        /// return all rooms with a room type
+        /// </summary>
+        /// <returns></returns>
         public IEnumerable<Room> GetAllRooms()
         {
             return _dbContext.Rooms.Include(x => x.RoomType);
         }
 
-        // FeaturesController Section
+        //FeaturesController Section
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="featureId"></param>
+        /// <returns></returns>
         public IEnumerable<Room> GetAllRoomsWithFeature(int? featureId)
         {
             var roomFeatures = _dbContext.RoomFeature
@@ -121,10 +131,15 @@ namespace HotelWebApplication.Services
             return selectedRooms;
         }
 
+        // RoomsController Section
 
-        // Take in a Room entity and return a list of SelectedRoomFeatureViewModel 
-        // This is a boolean property specifying if that particular feature
-        // is related to the room entity in question
+        /// <summary>
+        /// Take in a Room entity and return a list of SelectedRoomFeatureViewModel 
+        /// This is a boolean property specifying if that particular feature
+        /// is related to the room entity in question
+        /// </summary>
+        /// <param name="room"></param>
+        /// <returns></returns>
         public List<SelectedRoomFeatureViewModel> PopulateSelectedFeaturesForRoom(Room room)
         {
             var viewModel = new List<SelectedRoomFeatureViewModel>();
@@ -169,6 +184,39 @@ namespace HotelWebApplication.Services
             }
 
             return viewModel;
+        }
+
+        /// <summary>
+        /// Handle saving/updating the features for a particular room
+        /// </summary>
+        /// <param name="room"></param>
+        /// <param name="selectedFeatureId"></param>
+        public void UpdateRoomFeaturesList(Room room, int[] selectedFeatureId)
+        {
+            var previouslySelectedFeatures = _dbContext.RoomFeature
+                .Where(x => x.RoomId == room.Id);
+
+            _dbContext.RoomFeature.RemoveRange(previouslySelectedFeatures);
+            _dbContext.SaveChanges();
+
+            if (selectedFeatureId != null)
+            {
+                foreach (var featureId in selectedFeatureId)
+                {
+                    var allFeatureIds = new HashSet<int>(_dbContext.Features.Select(x => x.Id));
+                    if (allFeatureIds.Contains(featureId))
+                    {
+                        _dbContext.RoomFeature.Add(new RoomFeature
+                        {
+                            FeatureId = featureId,
+                            RoomId = room.Id
+                        });
+                    }
+                }
+
+                _dbContext.SaveChanges();
+                
+            }
         }
 
 

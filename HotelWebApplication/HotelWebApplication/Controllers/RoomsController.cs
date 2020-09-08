@@ -65,11 +65,12 @@ namespace HotelWebApplication.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Number,RoomTypeId,Price,Available,Description,MaximumGuests")] Room room)
+        public async Task<IActionResult> Create([Bind("Id,Number,RoomTypeId,Price,Available,Description,MaximumGuests")] Room room, int[] selectedFeatureIds)
         {
             if (ModelState.IsValid)
             {
                 await _roomService.CreateItemAsync(room);
+                _roomService.UpdateRoomFeaturesList(room, selectedFeatureIds);
                 return RedirectToAction(nameof(Index));
             }
 
@@ -93,9 +94,8 @@ namespace HotelWebApplication.Controllers
                 return NotFound();
             }
 
-            var RoomTypes = _roomService.GetAllRoomTypesAsync().Result;
-            ViewData["RoomTypeId"] = new SelectList(RoomTypes, "Id", "Name");
-
+            var roomTypes = _roomService.GetAllRoomTypesAsync().Result;
+            ViewData["RoomTypeId"] = new SelectList(roomTypes, "Id", "Name");
             ViewData["Features"] = _roomService.PopulateSelectedFeaturesForRoom(room);
 
             return View(room);
@@ -106,7 +106,7 @@ namespace HotelWebApplication.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Number,RoomTypeId,Price,Available,Description,MaximumGuests")] Room room)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Number,RoomTypeId,Price,Available,Description,MaximumGuests")] Room room, int[] selectedFeatureIds)
         {
             if (id != room.Id)
             {
@@ -118,6 +118,7 @@ namespace HotelWebApplication.Controllers
                 try
                 {
                     await _roomService.EditItemAsync(room);
+                    _roomService.UpdateRoomFeaturesList(room, selectedFeatureIds);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -133,9 +134,8 @@ namespace HotelWebApplication.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            var RoomTypes = _roomService.GetAllRoomTypesAsync().Result;
-            ViewData["RoomTypeId"] = new SelectList(RoomTypes, "Id", "Id", room.RoomTypeId);
-
+            var roomTypes = _roomService.GetAllRoomTypesAsync().Result;
+            ViewData["RoomTypeId"] = new SelectList(roomTypes, "Id", "Id", room.RoomTypeId);
             ViewData["Features"] = _roomService.PopulateSelectedFeaturesForRoom(room);
 
             return View(room);
