@@ -1,5 +1,6 @@
 ﻿using HotelWebApplication.Models;
 using HotelWebApplication.ViewModels;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,6 +41,12 @@ namespace HotelWebApplication.Services
 
         // FeaturesController
         IEnumerable<Room> GetAllRoomsWithFeature(int? featureId);
+
+
+        // ImagesController
+        Task<AddImagesViewModel> AddImagesAsync(List<IFormFile> files);
+
+        Task RemoveImageAsync(Image image);
 
         #endregion
     }

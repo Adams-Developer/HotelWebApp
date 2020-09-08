@@ -1,9 +1,13 @@
-﻿using HotelWebApplication.Data;
+﻿using ByteSizeLib;
+using HotelWebApplication.Data;
 using HotelWebApplication.Models;
 using HotelWebApplication.ViewModels;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -15,11 +19,13 @@ namespace HotelWebApplication.Services
     {
         private readonly ApplicationDbContext _dbContext;
         protected DbSet<TEnitity> DbSet;
+        private readonly IHostingEnvironment _hostingEnvironment;
 
-        public GenericHotelService(ApplicationDbContext dbContext)
+        public GenericHotelService(ApplicationDbContext dbContext, IHostingEnvironment hostingEnvironment)
         {
             _dbContext = dbContext;
             DbSet = dbContext.Set<TEnitity>();
+            _hostingEnvironment = hostingEnvironment;
         }
 
         // Add New Item
@@ -217,6 +223,84 @@ namespace HotelWebApplication.Services
                 _dbContext.SaveChanges();
                 
             }
+        }
+
+        // ImagesController
+        public async Task<AddImagesViewModel> AddImagesAsync(List<IFormFile> files)
+        {
+            var uploadErrors = new List<string>();
+            var addedImages = new List<Image>();
+            var imagesFolder = Path.Combine(_hostingEnvironment.WebRootPath, "images");
+
+            foreach (var formFile in files)
+            {
+                var _ext = Path.GetExtension(formFile.FileName).ToLower(); // file extension
+
+                if (formFile.Length > 0 && formFile.Length < 1000000)
+                {
+                    if (!(_ext == ".jpg" || _ext == ".png" || _ext == ".gif" || _ext == ".jpeg"))
+                    {
+                        uploadErrors.Add("The file \"" + formFile.FileName + "\" could not be uploaded because it has a bad extension -->\"" + _ext + "\"");
+                        continue;
+                    }
+
+                    string newFileName;
+
+                    var exisitingFilePath = Path.Combine(imagesFolder, formFile.FileName);
+                    var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(formFile.FileName);
+
+                    for(var count = 1; File.Exists(exisitingFilePath) == true; count++)
+                    {
+                        fileNameWithoutExtension = fileNameWithoutExtension + "(" + count.ToString() + ")";
+
+                        var updatedFileName = fileNameWithoutExtension + _ext;
+                        var updatedFilePath = Path.Combine(imagesFolder, updatedFileName);
+
+                        exisitingFilePath = updatedFilePath;
+                    }
+
+                    newFileName = fileNameWithoutExtension + _ext;
+
+                    var filePath = Path.Combine(imagesFolder, newFileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await formFile.CopyToAsync(stream);
+                    }
+
+                    var image = new Image
+                    {
+                        Name = newFileName,
+                        Size = ByteSize.FromBytes(formFile.Length).ToString(),
+                        ImageUrl = "~/images/" + newFileName,
+                        FilePath = filePath
+                    };
+                    addedImages.Add(image);
+
+                }
+                else
+                {
+                    uploadErrors.Add(formFile.FileName + "Size is not valid. -->(" + ByteSize.FromBytes(formFile.Length).ToString() + ")... Upload a file less than 1MB");
+                }
+            }
+
+            _dbContext.Images.AddRange(addedImages);
+            _dbContext.SaveChanges();
+
+            var result = new AddImagesViewModel
+            {
+                AddedImages = addedImages,
+                UploadErrors = uploadErrors
+            };
+            return result;
+        }
+
+        public async Task RemoveImageAsync(Image image)
+        {
+            File.Delete(image.FilePath);
+
+            _dbContext.Images.Remove(image);
+            await _dbContext.SaveChangesAsync();
         }
 
 
